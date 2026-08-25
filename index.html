@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notion社内基盤構築のご提案 | Kairos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F1C3F;
+    --blue:#1E3A6E;
+    --cyan:#6FD3E0;
+    --orange:#F2994A;
+    --paper:#F3F0E6;
+    --ink:#161B2E;
+    --line:rgba(111,211,224,0.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Noto Sans JP',sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.8;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{
+    font-family:'Zen Kaku Gothic New',sans-serif;
+    letter-spacing:0.02em;
+  }
+  .mono{
+    font-family:'Space Mono',monospace;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+  /* ===== blueprint grid background ===== */
+  .blueprint-bg{
+    background-color:var(--navy);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:40px 40px;
+    position:relative;
+  }
+  .blueprint-bg::before{
+    content:"";
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(111,211,224,0.10), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(242,153,74,0.10), transparent 55%);
+    pointer-events:none;
+  }
+
+  /* corner brackets like technical drawing */
+  .corner-frame{
+    position:relative;
+    border:1px solid var(--line);
+  }
+  .corner-frame::before,
+  .corner-frame::after{
+    content:"";
+    position:absolute;
+    width:18px;height:18px;
+    border-color:var(--cyan);
+    border-style:solid;
+  }
+  .corner-frame::before{
+    top:-1px;left:-1px;
+    border-width:2px 0 0 2px;
+  }
+  .corner-frame::after{
+    bottom:-1px;right:-1px;
+    border-width:0 2px 2px 0;
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    padding:110px 0 90px;
+    color:var(--paper);
+  }
+  .tag-line{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--cyan);
+    border:1px solid var(--line);
+    padding:6px 14px;
+    border-radius:2px;
+    margin-bottom:32px;
+  }
+  .tag-line::before{
+    content:"";
+    width:6px;height:6px;
+    background:var(--orange);
+    display:inline-block;
+    border-radius:50%;
+  }
+  .hero h1{
+    font-size:clamp(32px,5.2vw,58px);
+    font-weight:900;
+    line-height:1.4;
+    margin-bottom:24px;
+  }
+  .hero h1 span{
+    color:var(--cyan);
+  }
+  .hero p.lead{
+    font-size:16px;
+    color:rgba(243,240,230,0.8);
+    max-width:600px;
+    margin-bottom:44px;
+    font-weight:300;
+  }
+  .hero-panel{
+    margin-top:60px;
+    padding:26px 28px;
+    background:rgba(30,58,110,0.35);
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+  }
+  .hero-panel div{
+    font-size:12px;
+    color:var(--cyan);
+    font-family:'Space Mono',monospace;
+  }
+  .hero-panel strong{
+    display:block;
+    font-family:'Zen Kaku Gothic New',sans-serif;
+    color:var(--paper);
+    font-size:16px;
+    margin-top:6px;
+    font-weight:700;
+  }
+
+  /* ===== SECTION COMMON ===== */
+  section{
+    padding:100px 0;
+  }
+  .sec-label{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.2em;
+    color:var(--orange);
+    margin-bottom:16px;
+    display:block;
+  }
+  .sec-title{
+    font-size:clamp(24px,3.4vw,36px);
+    font-weight:700;
+    margin-bottom:40px;
+    color:var(--ink);
+  }
+
+  /* ===== UNDERSTANDING ===== */
+  .understand{
+    background:var(--paper);
+    position:relative;
+  }
+  .understand::after{
+    content:"BLUEPRINT / SEC.02";
+    position:absolute;
+    top:40px;right:24px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:rgba(22,27,46,0.25);
+    letter-spacing:0.1em;
+  }
+  .pain-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    margin-bottom:48px;
+  }
+  .pain-card{
+    background:#fff;
+    border:1px solid #e2ddce;
+    border-left:3px solid var(--orange);
+    padding:26px 22px;
+  }
+  .pain-card .num{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    color:var(--orange);
+    margin-bottom:10px;
+    display:block;
+  }
+  .pain-card h4{
+    font-size:16px;
+    margin-bottom:10px;
+  }
+  .pain-card p{
+    font-size:14px;
+    color:#5a5647;
+  }
+  .conclusion-box{
+    background:var(--navy);
+    color:var(--paper);
+    padding:36px 40px;
+    position:relative;
+    border-left:4px solid var(--cyan);
+  }
+  .conclusion-box p{
+    font-size:16px;
+    font-weight:500;
+  }
+  .conclusion-box span{
+    color:var(--cyan);
+  }
+
+  /* ===== VALUE ===== */
+  .value{
+    background:var(--navy);
+    color:var(--paper);
+    position:relative;
+  }
+  .value .wrap{position:relative;z-index:1;}
+  .value .sec-title{color:var(--paper);}
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .v-card{
+    background:var(--navy);
+    padding:32px 26px;
+    position:relative;
+  }
+  .v-card .idx{
+    font-family:'Space Mono',monospace;
+    font-size:24px;
+    color:var(--cyan);
+    opacity:0.5;
+    display:block;
+    margin-bottom:18px;
+  }
+  .v-card h3{
+    font-size:17px;
+    margin-bottom:12px;
+    color:var(--paper);
+  }
+  .v-card p{
+    font-size:13.5px;
+    color:rgba(243,240,230,0.72);
+    font-weight:300;
+  }
+
+  /* ===== SCHEDULE ===== */
+  .schedule{
+    background:var(--paper);
+  }
+  .timeline{
+    position:relative;
+    padding-left:0;
+  }
+  .t-row{
+    display:grid;
+    grid-template-columns:100px 1px 1fr;
+    gap:0;
+    margin-bottom:0;
+  }
+  .t-phase{
+    padding:26px 20px 26px 0;
+    font-family:'Space Mono',monospace;
+    color:var(--orange);
+    font-size:13px;
+    text-align:right;
+  }
+  .t-line{
+    background:repeating-linear-gradient(to bottom, var(--blue) 0, var(--blue) 6px, transparent 6px, transparent 12px);
+    position:relative;
+  }
+  .t-line::before{
+    content:"";
+    position:absolute;
+    top:30px;left:-4px;
+    width:9px;height:9px;
+    background:var(--cyan);
+    border-radius:50%;
+  }
+  .t-content{
+    padding:26px 0 26px 30px;
+    border-bottom:1px dashed #d8d2bd;
+  }
+  .t-row:last-child .t-content{border-bottom:none;}
+  .t-content h4{
+    font-size:17px;
+    margin-bottom:8px;
+  }
+  .t-content p{
+    font-size:14px;
+    color:#5a5647;
+  }
+
+  /* ===== CLOSING ===== */
+  .closing{
+    background:var(--navy);
+    color:var(--paper);
+    text-align:center;
+    padding:120px 0;
+    position:relative;
+  }
+  .stamp{
+    display:inline-block;
+    border:2px solid var(--orange);
+    color:var(--orange);
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.2em;
+    padding:6px 16px;
+    transform:rotate(-3deg);
+    margin-bottom:28px;
+  }
+  .closing h2{
+    font-size:clamp(26px,4vw,42px);
+    margin-bottom:24px;
+  }
+  .closing p{
+    color:rgba(243,240,230,0.75);
+    max-width:520px;
+    margin:0 auto 44px;
+    font-size:15px;
+    font-weight:300;
+  }
+  .cta-btn{
+    display:inline-block;
+    background:var(--orange);
+    color:var(--navy);
+    font-weight:700;
+    padding:18px 48px;
+    font-size:15px;
+    letter-spacing:0.05em;
+    border-radius:2px;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow:0 0 0 1px rgba(242,153,74,0.4);
+  }
+  .cta-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 24px rgba(242,153,74,0.35);
+  }
+  footer{
+    text-align:center;
+    padding:30px 0;
+    background:var(--navy);
+    color:rgba(243,240,230,0.4);
+    font-size:12px;
+    font-family:'Space Mono',monospace;
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:768px){
+    .pain-grid{grid-template-columns:1fr;}
+    .hero-panel{grid-template-columns:1fr;}
+    .card-grid{grid-template-columns:1fr;}
+    .t-row{grid-template-columns:70px 1px 1fr;}
+    section{padding:70px 0;}
+    .hero{padding:80px 0 60px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<div class="blueprint-bg">
+  <div class="hero">
+    <div class="wrap">
+      <div class="tag-line">KAIROS PROPOSAL / NOTION基盤構築</div>
+      <h1>散らばった情報に、<br><span>ひとつの設計図</span>を。</h1>
+      <p class="lead">
+        マニュアルは属人化し、タスクは埋もれ、ツールはあちこちに散らばる——
+        WEB広告運用の現場で起きがちなその状態に、Kairosは「Notionという一枚の基盤図面」で応えます。
+        本ページは、sakurai_live様の募集内容を拝見したKairosからのご提案です。
+      </p>
+      <div class="hero-panel corner-frame">
+        <div>BUDGET<strong>¥50,000〜100,000</strong></div>
+        <div>SCOPE<strong>マニュアル / タスク管理 / ツール一元化</strong></div>
+        <div>STATUS<strong>ご提案中</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== UNDERSTANDING ===== -->
+<section class="understand">
+  <div class="wrap">
+    <span class="sec-label">002 / UNDERSTANDING</span>
+    <h2 class="sec-title">募集内容から、私たちはこう読み解きました。</h2>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="num">ISSUE 01</span>
+        <h4>マニュアルが「人」に依存している</h4>
+        <p>広告運用の手順やノウハウが個人の頭の中にあり、退職・異動のたびに再現性が失われてしまう状態。</p>
+      </div>
+      <div class="pain-card">
+        <span class="num">ISSUE 02</span>
+        <h4>タスクが可視化されていない</h4>
+        <p>誰が何をどこまで進めているのか一目で分からず、進捗確認や引き継ぎに余計な工数がかかっている。</p>
+      </div>
+      <div class="pain-card">
+        <span class="num">ISSUE 03</span>
+        <h4>主要ツールが乱立している</h4>
+        <p>広告管理画面・分析ツール・チャット・ドキュメントが散在し、情報を探すこと自体が業務になっている。</p>
+      </div>
+    </div>
+
+    <div class="conclusion-box corner-frame">
+      <p>
+        必要なのは単なる「Notionのテンプレート」ではなく、<span>WEB広告運用チームの働き方に合わせて設計された基盤</span>です。
+        Kairosは、ツール導入ではなく“業務設計”としてNotion構築に取り組みます。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VALUE ===== -->
+<section class="value">
+  <div class="wrap">
+    <span class="sec-label" style="color:var(--cyan)">003 / WHAT WE PROVIDE</span>
+    <h2 class="sec-title">Kairosが提供する5つの基盤設計</h2>
+
+    <div class="card-grid">
+      <div class="v-card">
+        <span class="idx">01</span>
+        <h3>Notion構造設計</h3>
+        <p>マニュアル・タスク・ツール管理を横断できるデータベース構造を、貴社の運用フローに合わせてゼロから設計します。</p>
+      </div>
+      <div class="v-card">
+        <span class="idx">02</span>
+        <h3>マニュアルの型化</h3>
+        <p>広告運用の手順・判断基準をテンプレート化し、誰が読んでも同じ品質で再現できるドキュメント体系を構築します。</p>
+      </div>
+      <div class="v-card">
+        <span class="idx">03</span>
+        <h3>タスク運用フロー</h3>
+        <p>担当・期限・進捗ステータスが一目で分かる管理ボードを設計し、抜け漏れと属人化を防ぎます。</p>
+      </div>
+      <div class="v-card">
+        <span class="idx">04</span>
+        <h3>ツール一元管理ハブ</h3>
+        <p>広告管理画面や分析ツールへの導線をNotion上に集約し、「探す」から「開くだけ」の状態へ変えます。</p>
+      </div>
+      <div class="v-card">
+        <span class="idx">05</span>
+        <h3>運用定着サポート</h3>
+        <p>構築して終わりにせず、実際にチームが使い続けられるよう運用ルールの定着まで伴走します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SCHEDULE ===== -->
+<section class="schedule">
+  <div class="wrap">
+    <span class="sec-label">004 / SCHEDULE</span>
+    <h2 class="sec-title">想定の進め方（目安 2〜3週間）</h2>
+
+    <div class="timeline">
+      <div class="t-row">
+        <div class="t-phase">PHASE 01<br><span style="opacity:0.6">1-2日</span></div>
+        <div class="t-line"></div>
+        <div class="t-content">
+          <h4>ヒアリング・現状整理</h4>
+          <p>現行のマニュアル・タスク管理・使用ツールの状況をヒアリングし、課題を整理します。</p>
+        </div>
+      </div>
+      <div class="t-row">
+        <div class="t-phase">PHASE 02<br><span style="opacity:0.6">3-4日</span></div>
+        <div class="t-line"></div>
+        <div class="t-content">
+          <h4>基盤構造の設計</h4>
+          <p>データベース構成・テンプレート・権限設計など、Notion上の骨格を設計します。</p>
+        </div>
+      </div>
+      <div class="t-row">
+        <div class="t-phase">PHASE 03<br><span style="opacity:0.6">5-7日</span></div>
+        <div class="t-line"></div>
+        <div class="t-content">
+          <h4>構築・コンテンツ移行</h4>
+          <p>マニュアル・タスクボード・ツールハブを実装し、既存情報を移行します。</p>
+        </div>
+      </div>
+      <div class="t-row">
+        <div class="t-phase">PHASE 04<br><span style="opacity:0.6">3-5日</span></div>
+        <div class="t-line"></div>
+        <div class="t-content">
+          <h4>運用テスト・微調整</h4>
+          <p>実際のチーム運用を想定してテストし、使いやすさをもとに調整を行います。</p>
+        </div>
+      </div>
+      <div class="t-row">
+        <div class="t-phase">PHASE 05<br><span style="opacity:0.6">継続</span></div>
+        <div class="t-line"></div>
+        <div class="t-content">
+          <h4>運用サポート</h4>
+          <p>導入後も、運用ルールの改善や新規メンバーへの展開を継続的にサポートします。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CLOSING ===== -->
+<div class="blueprint-bg">
+  <section class="closing">
+    <div class="wrap">
+      <div class="stamp">APPROVED FOR DISCUSSION</div>
+      <h2>まずは、現状の課題感から<br>お聞かせください。</h2>
+      <p>
+        ご予算・期間・優先順位に合わせて、最適な基盤構築のご提案をいたします。
+        まずは軽いヒアリングからでも構いません。お気軽にご連絡ください。
+      </p>
+      <a href="#" class="cta-btn">Kairosに相談してみる</a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  KAIROS — WEB制作・システム開発チーム / PROPOSAL FOR sakurai_live
+</footer>
+
+</body>
+</html>
